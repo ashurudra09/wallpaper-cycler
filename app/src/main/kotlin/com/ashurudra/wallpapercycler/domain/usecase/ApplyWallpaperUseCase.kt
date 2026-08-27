@@ -6,6 +6,7 @@ import com.ashurudra.wallpapercycler.data.db.CycleStateEntity
 import com.ashurudra.wallpapercycler.data.db.ScheduleEntity
 import com.ashurudra.wallpapercycler.data.db.toDomain
 import com.ashurudra.wallpapercycler.data.db.toEntity
+import com.ashurudra.wallpapercycler.data.source.ImageRef
 import com.ashurudra.wallpapercycler.data.source.sortedFor
 import com.ashurudra.wallpapercycler.data.source.toImageSource
 import com.ashurudra.wallpapercycler.domain.shuffle.ShuffleBag
@@ -23,6 +24,15 @@ sealed interface ApplyOutcome {
 
 data class ApplyResult(val outcome: ApplyOutcome, val autoDisabled: Boolean)
 
+/**
+ * Read-only view of what [ApplyWallpaperUseCase.applyNext] would do next, for UI display
+ * (schedule card "current"/"next" thumbnails) - never applies a wallpaper or persists
+ * anything. [errorMessage] is set (with both refs null) when the source can't be read or
+ * has no images; [current]/[next] can individually be null if the cycle state points at an
+ * id no longer present in the source, without that being a hard error.
+ */
+data class CyclePeek(val current: ImageRef?, val next: ImageRef?, val errorMessage: String?)
+
 private const val MAX_CONSECUTIVE_FAILURES = 5
 
 /**
@@ -39,6 +49,47 @@ class ApplyWallpaperUseCase(private val context: Context) {
     suspend fun applyNext(scheduleId: String): ApplyResult = advance(scheduleId, Direction.NEXT)
 
     suspend fun applyPrevious(scheduleId: String): ApplyResult = advance(scheduleId, Direction.PREVIOUS)
+
+    /**
+     * Pure simulation of one more [applyNext] step, for the schedule card's current/next
+     * thumbnails. Mirrors [advance]'s branching exactly so "current" means the same thing
+     * here as it does there, but never calls the wallpaper applier and never writes to
+     * [com.ashurudra.wallpapercycler.data.db.CycleDao].
+     */
+    suspend fun peek(scheduleId: String): CyclePeek {
+        val scheduleEntity = database.scheduleDao().getById(scheduleId)
+            ?: return CyclePeek(current = null, next = null, errorMessage = "schedule not found")
+        val schedule = scheduleEntity.toDomain()
+
+        val images = try {
+            withContext(Dispatchers.IO) { schedule.source.toImageSource(context).listImages() }
+        } catch (e: Exception) {
+            return CyclePeek(current = null, next = null, errorMessage = e.message ?: e.javaClass.simpleName)
+        }
+        if (images.isEmpty()) {
+            return CyclePeek(current = null, next = null, errorMessage = "no images found")
+        }
+
+        val cycleState = database.cycleDao().getByScheduleId(scheduleId)
+
+        val currentId: String?
+        val nextId: String?
+        if (schedule.shuffleEnabled) {
+            val ids = images.map { it.id }
+            val bag = (cycleState?.toDomain() ?: ShuffleBag.create(ids, System.currentTimeMillis())).reconcile(ids)
+            currentId = bag.current
+            nextId = bag.next(newSeed = System.currentTimeMillis()).current
+        } else {
+            val sortedIds = images.sortedFor(schedule.sortOrder).map { it.id }
+            val currentIndex = SortedCycle.reconcileIndex(cycleState?.sequence?.getOrNull(cycleState.index), sortedIds)
+            currentId = sortedIds.getOrNull(currentIndex)
+            nextId = sortedIds.getOrNull(SortedCycle.nextIndex(currentIndex, sortedIds.size))
+        }
+
+        val currentRef = images.find { it.id == currentId }
+        val nextRef = images.find { it.id == nextId }
+        return CyclePeek(current = currentRef, next = nextRef, errorMessage = null)
+    }
 
     private enum class Direction { NEXT, PREVIOUS }
 

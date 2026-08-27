@@ -4,9 +4,13 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CycleDao {
+
+    @Query("SELECT * FROM cycle_state")
+    fun observeAll(): Flow<List<CycleStateEntity>>
 
     @Query("SELECT * FROM cycle_state WHERE scheduleId = :scheduleId")
     suspend fun getByScheduleId(scheduleId: String): CycleStateEntity?

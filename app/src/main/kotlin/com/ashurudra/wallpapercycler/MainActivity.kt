@@ -12,10 +12,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.ashurudra.wallpapercycler.ui.diagnostics.DiagnosticsScreen
+import com.ashurudra.wallpapercycler.ui.editor.ScheduleEditorScreen
 import com.ashurudra.wallpapercycler.ui.onboarding.PermissionsScreen
 import com.ashurudra.wallpapercycler.ui.schedules.SchedulesScreen
 import com.ashurudra.wallpapercycler.ui.theme.WallpaperCyclerTheme
@@ -25,6 +28,9 @@ import kotlinx.coroutines.launch
 private const val ROUTE_ONBOARDING = "onboarding"
 private const val ROUTE_SCHEDULES = "schedules"
 private const val ROUTE_DIAGNOSTICS = "diagnostics"
+private const val ROUTE_EDITOR_NEW = "editor_new"
+private const val ROUTE_EDITOR_EDIT = "editor_edit/{scheduleId}"
+private const val ARG_SCHEDULE_ID = "scheduleId"
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,10 +84,32 @@ class MainActivity : ComponentActivity() {
                         composable(ROUTE_SCHEDULES) {
                             SchedulesScreen(
                                 onOpenDiagnostics = { navController.navigate(ROUTE_DIAGNOSTICS) },
+                                onOpenEditor = { scheduleId ->
+                                    if (scheduleId == null) {
+                                        navController.navigate(ROUTE_EDITOR_NEW)
+                                    } else {
+                                        navController.navigate("editor_edit/$scheduleId")
+                                    }
+                                },
                             )
                         }
                         composable(ROUTE_DIAGNOSTICS) {
                             DiagnosticsScreen(onBack = { navController.popBackStack() })
+                        }
+                        composable(ROUTE_EDITOR_NEW) {
+                            ScheduleEditorScreen(
+                                scheduleId = null,
+                                onDone = { navController.popBackStack() },
+                            )
+                        }
+                        composable(
+                            route = ROUTE_EDITOR_EDIT,
+                            arguments = listOf(navArgument(ARG_SCHEDULE_ID) { type = NavType.StringType }),
+                        ) { backStackEntry ->
+                            ScheduleEditorScreen(
+                                scheduleId = backStackEntry.arguments?.getString(ARG_SCHEDULE_ID),
+                                onDone = { navController.popBackStack() },
+                            )
                         }
                     }
                 }
