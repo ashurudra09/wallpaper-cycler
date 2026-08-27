@@ -14,9 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -82,50 +79,27 @@ fun SetPhotoGrid(
             }
         }
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            items(photos, key = { it.name }) { file ->
-                val isSelected = file.name in selected
-                Box(
-                    modifier = Modifier
-                        .aspectRatio(1f)
-                        .clip(RoundedCornerShape(8.dp))
-                        .combinedClickable(
-                            onClick = {
-                                if (selected.isNotEmpty()) {
-                                    selected = if (isSelected) selected - file.name else selected + file.name
-                                }
-                            },
-                            onLongClick = { selected = selected + file.name },
-                        ),
-                ) {
-                    AsyncImage(
-                        model = Uri.fromFile(file),
-                        contentDescription = file.name,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop,
+        // A plain chunked grid, not LazyVerticalGrid - this Column already lives inside the
+        // editor screen's own Modifier.verticalScroll(), and a lazy layout measured with an
+        // unbounded (infinite) height parent throws at measure time. Fine at this app's scale
+        // (personal photo sets, not tens of thousands of images).
+        photos.chunked(PHOTO_GRID_COLUMNS).forEach { rowPhotos ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                rowPhotos.forEach { file ->
+                    PhotoCell(
+                        file = file,
+                        selected = file.name in selected,
+                        hasSelection = selected.isNotEmpty(),
+                        onToggle = { selected = if (file.name in selected) selected - file.name else selected + file.name },
+                        onLongClick = { selected = selected + file.name },
+                        modifier = Modifier.weight(1f),
                     )
-                    if (isSelected) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Black.copy(alpha = 0.4f)),
-                        )
-                        Icon(
-                            Icons.Filled.Check,
-                            contentDescription = "Selected",
-                            tint = Color.White,
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .size(28.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primary)
-                                .padding(4.dp),
-                        )
-                    }
+                }
+                repeat(PHOTO_GRID_COLUMNS - rowPhotos.size) {
+                    Spacer(modifier = Modifier.weight(1f))
                 }
             }
         }
@@ -142,6 +116,53 @@ fun SetPhotoGrid(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+    }
+}
+
+private const val PHOTO_GRID_COLUMNS = 3
+
+@Composable
+private fun PhotoCell(
+    file: File,
+    selected: Boolean,
+    hasSelection: Boolean,
+    onToggle: () -> Unit,
+    onLongClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .aspectRatio(1f)
+            .clip(RoundedCornerShape(8.dp))
+            .combinedClickable(
+                onClick = { if (hasSelection) onToggle() },
+                onLongClick = onLongClick,
+            ),
+    ) {
+        AsyncImage(
+            model = Uri.fromFile(file),
+            contentDescription = file.name,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
+        )
+        if (selected) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.4f)),
+            )
+            Icon(
+                Icons.Filled.Check,
+                contentDescription = "Selected",
+                tint = Color.White,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(28.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(4.dp),
+            )
+        }
     }
 }
 
