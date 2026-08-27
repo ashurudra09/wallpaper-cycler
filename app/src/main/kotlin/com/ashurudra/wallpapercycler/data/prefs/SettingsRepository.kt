@@ -1,6 +1,7 @@
 package com.ashurudra.wallpapercycler.data.prefs
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -16,6 +17,7 @@ class SettingsRepository(private val context: Context) {
     private object Keys {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val CUSTOM_ACCENT = intPreferencesKey("custom_accent")
+        val ONBOARDING_COMPLETE = booleanPreferencesKey("onboarding_complete")
     }
 
     val themeMode: Flow<ThemeMode> = context.settingsDataStore.data.map { prefs ->
@@ -33,5 +35,13 @@ class SettingsRepository(private val context: Context) {
         context.settingsDataStore.edit { prefs ->
             if (colorArgb == null) prefs.remove(Keys.CUSTOM_ACCENT) else prefs[Keys.CUSTOM_ACCENT] = colorArgb
         }
+    }
+
+    val onboardingComplete: Flow<Boolean> = context.settingsDataStore.data.map { prefs ->
+        prefs[Keys.ONBOARDING_COMPLETE] ?: false
+    }
+
+    suspend fun setOnboardingComplete() {
+        context.settingsDataStore.edit { it[Keys.ONBOARDING_COMPLETE] = true }
     }
 }

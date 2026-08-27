@@ -8,6 +8,7 @@ import com.ashurudra.wallpapercycler.domain.model.Schedule
 import com.ashurudra.wallpapercycler.domain.model.ScreenTarget
 import com.ashurudra.wallpapercycler.domain.model.SortOrder
 import com.ashurudra.wallpapercycler.domain.model.Trigger
+import java.time.Instant
 
 @Entity(tableName = "schedules")
 data class ScheduleEntity(
@@ -20,6 +21,8 @@ data class ScheduleEntity(
     val shuffleEnabled: Boolean,
     val sortOrder: SortOrder,
     val fitMode: FitMode,
+    // Epoch millis rather than Instant - avoids needing a new Room TypeConverter.
+    val anchoredAt: Long,
 )
 
 fun ScheduleEntity.toDomain(): Schedule = Schedule(
@@ -32,6 +35,7 @@ fun ScheduleEntity.toDomain(): Schedule = Schedule(
     shuffleEnabled = shuffleEnabled,
     sortOrder = sortOrder,
     fitMode = fitMode,
+    anchoredAt = Instant.ofEpochMilli(anchoredAt),
 )
 
 fun Schedule.toEntity(): ScheduleEntity = ScheduleEntity(
@@ -44,4 +48,5 @@ fun Schedule.toEntity(): ScheduleEntity = ScheduleEntity(
     shuffleEnabled = shuffleEnabled,
     sortOrder = sortOrder,
     fitMode = fitMode,
+    anchoredAt = anchoredAt.toEpochMilli(),
 )

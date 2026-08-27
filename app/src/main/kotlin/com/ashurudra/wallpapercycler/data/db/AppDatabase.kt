@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
 
 @Database(
     entities = [ScheduleEntity::class, CycleStateEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -27,7 +27,11 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "wallpaper_cycler.db",
-                ).build().also { instance = it }
+                )
+                    // Pre-release app, no installed base to migrate - wipes local dev
+                    // data on schema change instead of writing a migration path.
+                    .fallbackToDestructiveMigration(true)
+                    .build().also { instance = it }
             }
     }
 }

@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.SET_WALLPAPER_HINTS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".WallpaperCyclerApp"
@@ -30,6 +31,18 @@
         <receiver
             android:name=".ui.diagnostics.DiagnosticsAlarmReceiver"
             android:exported="false" />
+
+        <receiver
+            android:name=".scheduler.WallpaperAlarmReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".scheduler.BootCompletedReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
     </application>
 

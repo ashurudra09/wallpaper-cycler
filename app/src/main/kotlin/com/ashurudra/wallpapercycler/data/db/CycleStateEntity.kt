@@ -14,9 +14,21 @@ data class CycleStateEntity(
     val sequence: List<String>,
     val index: Int,
     val seed: Long,
+    val consecutiveFailures: Int = 0,
+    val lastError: String? = null,
 )
 
 fun CycleStateEntity.toDomain(): ShuffleBag = ShuffleBag(sequence = sequence, index = index, seed = seed)
 
-fun ShuffleBag.toEntity(scheduleId: String): CycleStateEntity =
-    CycleStateEntity(scheduleId = scheduleId, sequence = sequence, index = index, seed = seed)
+fun ShuffleBag.toEntity(
+    scheduleId: String,
+    consecutiveFailures: Int = 0,
+    lastError: String? = null,
+): CycleStateEntity = CycleStateEntity(
+    scheduleId = scheduleId,
+    sequence = sequence,
+    index = index,
+    seed = seed,
+    consecutiveFailures = consecutiveFailures,
+    lastError = lastError,
+)
