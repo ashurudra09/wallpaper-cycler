@@ -5,6 +5,8 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
 import android.view.View
 import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
@@ -70,26 +72,22 @@ class WidgetActionWorker(appContext: Context, params: WorkerParameters) : Corout
     ): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget_cycler)
 
-        val bitmap = schedule?.let {
-            val peek = applyWallpaperUseCase.peek(it.id)
-            peek.current?.uri?.let { uri ->
-                runCatching {
-                    WallpaperImageDecoder.decode(context.contentResolver, uri, THUMBNAIL_SIZE, THUMBNAIL_SIZE, FitMode.FILL)
-                }.getOrNull()
-            }
-        }
+        val peek = schedule?.let { applyWallpaperUseCase.peek(it.id) }
+        val previousBitmap = decodePreview(context, peek?.current?.uri)
+        val nextBitmap = decodePreview(context, peek?.next?.uri)
 
-        if (bitmap != null) {
-            views.setImageViewBitmap(R.id.widget_image, bitmap)
-            views.setViewVisibility(R.id.widget_image, View.VISIBLE)
-            views.setViewVisibility(R.id.widget_empty_text, View.GONE)
-        } else {
-            views.setViewVisibility(R.id.widget_image, View.GONE)
+        if (previousBitmap == null && nextBitmap == null) {
+            views.setViewVisibility(R.id.widget_previews, View.GONE)
             views.setViewVisibility(R.id.widget_empty_text, View.VISIBLE)
             views.setTextViewText(
                 R.id.widget_empty_text,
-                if (schedule == null) "No active schedule for this widget" else "No images found",
+                if (schedule == null) "No active schedule for this widget" else (peek?.errorMessage ?: "No images found"),
             )
+        } else {
+            views.setViewVisibility(R.id.widget_previews, View.VISIBLE)
+            views.setViewVisibility(R.id.widget_empty_text, View.GONE)
+            setPreview(views, R.id.widget_image_previous, previousBitmap)
+            setPreview(views, R.id.widget_image_next, nextBitmap)
         }
 
         views.setOnClickPendingIntent(R.id.widget_root, openAppPendingIntent(context, appWidgetId))
@@ -103,6 +101,22 @@ class WidgetActionWorker(appContext: Context, params: WorkerParameters) : Corout
         )
 
         return views
+    }
+
+    private fun decodePreview(context: Context, uri: Uri?): Bitmap? {
+        uri ?: return null
+        return runCatching {
+            WallpaperImageDecoder.decode(context.contentResolver, uri, THUMBNAIL_SIZE, THUMBNAIL_SIZE, FitMode.FILL)
+        }.getOrNull()
+    }
+
+    private fun setPreview(views: RemoteViews, imageId: Int, bitmap: Bitmap?) {
+        if (bitmap != null) {
+            views.setImageViewBitmap(imageId, bitmap)
+            views.setViewVisibility(imageId, View.VISIBLE)
+        } else {
+            views.setViewVisibility(imageId, View.INVISIBLE)
+        }
     }
 
     private fun openAppPendingIntent(context: Context, appWidgetId: Int): PendingIntent {
