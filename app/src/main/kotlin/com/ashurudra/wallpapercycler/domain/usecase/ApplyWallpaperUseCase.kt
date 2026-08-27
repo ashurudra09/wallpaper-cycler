@@ -12,7 +12,6 @@ import com.ashurudra.wallpapercycler.data.source.toImageSource
 import com.ashurudra.wallpapercycler.domain.shuffle.ShuffleBag
 import com.ashurudra.wallpapercycler.domain.shuffle.SortedCycle
 import com.ashurudra.wallpapercycler.wallpaper.WallpaperApplier
-import com.ashurudra.wallpapercycler.widget.WidgetRefresher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -47,11 +46,9 @@ class ApplyWallpaperUseCase(private val context: Context) {
     private val database = AppDatabase.getInstance(context)
     private val wallpaperApplier = WallpaperApplier(context)
 
-    suspend fun applyNext(scheduleId: String): ApplyResult =
-        advance(scheduleId, Direction.NEXT).also { WidgetRefresher.requestUpdateAll(context) }
+    suspend fun applyNext(scheduleId: String): ApplyResult = advance(scheduleId, Direction.NEXT)
 
-    suspend fun applyPrevious(scheduleId: String): ApplyResult =
-        advance(scheduleId, Direction.PREVIOUS).also { WidgetRefresher.requestUpdateAll(context) }
+    suspend fun applyPrevious(scheduleId: String): ApplyResult = advance(scheduleId, Direction.PREVIOUS)
 
     /**
      * Pure simulation of one more [applyNext] step, for the schedule card's current/next
@@ -84,9 +81,8 @@ class ApplyWallpaperUseCase(private val context: Context) {
             // Reuses the bag's own persisted seed rather than a fresh time-based one: peek()
             // never persists this simulated reshuffle, so a fresh seed here would make the
             // "next" preview change on every call that lands on a cycle boundary, even with
-            // nothing about the schedule's actual state having advanced (visible as a widget
-            // thumbnail that flickers between different images on repeated redraws). The real
-            // reshuffle in advance() still uses a genuinely fresh seed when it actually runs.
+            // nothing about the schedule's actual state having advanced. The real reshuffle in
+            // advance() still uses a genuinely fresh seed when it actually runs.
             nextId = bag.next(newSeed = bag.seed).current
         } else {
             val sortedIds = images.sortedFor(schedule.sortOrder).map { it.id }

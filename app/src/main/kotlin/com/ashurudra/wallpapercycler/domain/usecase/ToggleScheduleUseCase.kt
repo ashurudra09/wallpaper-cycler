@@ -7,7 +7,6 @@ import com.ashurudra.wallpapercycler.data.db.toEntity
 import com.ashurudra.wallpapercycler.domain.schedule.nextTriggerAt
 import com.ashurudra.wallpapercycler.domain.target.TargetArbiter
 import com.ashurudra.wallpapercycler.scheduler.AlarmScheduler
-import com.ashurudra.wallpapercycler.widget.WidgetRefresher
 import kotlinx.coroutines.flow.first
 import java.time.Instant
 import java.time.ZoneId
@@ -94,10 +93,6 @@ class ToggleScheduleUseCase(private val context: Context) {
         } catch (e: SecurityException) {
             // Cancelling doesn't require the exact-alarm permission, but guard anyway.
         }
-        // enable() reaches WidgetRefresher via applyNext(); disabling never calls that, so a
-        // widget bound to this schedule's scope needs its own explicit nudge to drop to the
-        // empty state instead of showing a wallpaper that's no longer this schedule's to show.
-        WidgetRefresher.requestUpdateAll(context)
         return ToggleResult.Disabled
     }
 }
