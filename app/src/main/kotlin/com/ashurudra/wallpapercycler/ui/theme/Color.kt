@@ -1,0 +1,41 @@
+package com.ashurudra.wallpapercycler.ui.theme
+
+import androidx.compose.ui.graphics.Color
+
+// Fixed light palette — does not shift with wallpaper or device (no dynamic/Material You color).
+val LightPrimary = Color(0xFF415AC7)
+val LightOnPrimary = Color(0xFFFFFFFF)
+val LightPrimaryContainer = Color(0xFFDEE0FF)
+val LightOnPrimaryContainer = Color(0xFF00105C)
+val LightSecondary = Color(0xFF5C5D72)
+val LightOnSecondary = Color(0xFFFFFFFF)
+val LightSecondaryContainer = Color(0xFFE1E0F9)
+val LightOnSecondaryContainer = Color(0xFF191A2C)
+val LightBackground = Color(0xFFFCFAFF)
+val LightOnBackground = Color(0xFF1B1B1F)
+val LightSurface = Color(0xFFFCFAFF)
+val LightOnSurface = Color(0xFF1B1B1F)
+val LightSurfaceVariant = Color(0xFFE3E1EC)
+val LightOnSurfaceVariant = Color(0xFF46464F)
+val LightOutline = Color(0xFF767680)
+val LightError = Color(0xFFBA1A1A)
+val LightOnError = Color(0xFFFFFFFF)
+
+// Fixed dark palette — a deliberate design, not a derived inverse of the light one.
+val DarkPrimary = Color(0xFFBAC3FF)
+val DarkOnPrimary = Color(0xFF0A2599)
+val DarkPrimaryContainer = Color(0xFF293FAE)
+val DarkOnPrimaryContainer = Color(0xFFDEE0FF)
+val DarkSecondary = Color(0xFFC5C4DD)
+val DarkOnSecondary = Color(0xFF2D2F42)
+val DarkSecondaryContainer = Color(0xFF444559)
+val DarkOnSecondaryContainer = Color(0xFFE1E0F9)
+val DarkBackground = Color(0xFF131316)
+val DarkOnBackground = Color(0xFFE4E1E6)
+val DarkSurface = Color(0xFF131316)
+val DarkOnSurface = Color(0xFFE4E1E6)
+val DarkSurfaceVariant = Color(0xFF46464F)
+val DarkOnSurfaceVariant = Color(0xFFC7C5D0)
+val DarkOutline = Color(0xFF90909A)
+val DarkError = Color(0xFFFFB4AB)
+val DarkOnError = Color(0xFF690005)

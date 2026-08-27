@@ -1,0 +1,37 @@
+# Gradle
+.gradle/
+.kotlin/
+build/
+app/build/
+app/schemas/
+app/release/
+
+# Local configuration
+local.properties
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+.navigation/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Build outputs, if ever produced outside build/
+*.apk
+*.aab
+*.hprof
+
+# Keystores — never commit signing material
+*.jks
+*.keystore
+keystore.properties
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
