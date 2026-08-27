@@ -50,30 +50,34 @@
             android:pathData="M181,355 L212,322 L246,350 L331,352 L331,366 L181,366 Z" />
     </group>
 
-    <!-- cycling badge -->
-    <path android:fillColor="#6E5A96" android:pathData="M390,390 m-52,0 a52,52 0 1 0 104,0 a52,52 0 1 0 -104,0" />
+    <!-- cycling badge - pulled in from the SVG's (390,390) r=52 to (330,330) r=44 (same 45deg
+         diagonal from icon center, scaled proportionally) so its full extent sits inside the
+         108dp adaptive-icon format's guaranteed-safe circle (r=~33dp, i.e. r=~156 on this
+         512-unit canvas). At the original position/size it fell outside that circle and got
+         cropped by a circular launcher mask - see docs/app-icon.svg's own comment for context. -->
+    <path android:fillColor="#6E5A96" android:pathData="M330,330 m-44,0 a44,44 0 1 0 88,0 a44,44 0 1 0 -88,0" />
     <path
         android:strokeColor="#FFFFFF"
-        android:strokeWidth="3.8"
+        android:strokeWidth="3.2"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M410.7,374.6 L410.7,386 L399.3,386" />
+        android:pathData="M347.68,317.13 L347.68,326.78 L338.04,326.78" />
     <path
         android:strokeColor="#FFFFFF"
-        android:strokeWidth="3.8"
+        android:strokeWidth="3.2"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M368.9,405 L368.9,393.6 L380.3,393.6" />
+        android:pathData="M312.31,342.86 L312.31,333.21 L321.96,333.21" />
     <path
         android:strokeColor="#FFFFFF"
-        android:strokeWidth="3.8"
+        android:strokeWidth="3.2"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M373.669,384.1 a17.1,17.1 0 0 1 28.215,-6.384 L410.7,386" />
+        android:pathData="M316.345,325.17 a14.47,14.47 0 0 1 23.88,-5.403 L347.68,326.78" />
     <path
         android:strokeColor="#FFFFFF"
-        android:strokeWidth="3.8"
+        android:strokeWidth="3.2"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M405.931,395.5 a17.1,17.1 0 0 1 -28.215,6.384 L368.9,393.6" />
+        android:pathData="M343.65,334.82 a14.47,14.47 0 0 1 -23.88,5.403 L312.31,333.21" />
 </vector>
