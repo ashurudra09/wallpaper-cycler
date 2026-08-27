@@ -81,7 +81,13 @@ class ApplyWallpaperUseCase(private val context: Context) {
             val ids = images.map { it.id }
             val bag = (cycleState?.toDomain() ?: ShuffleBag.create(ids, System.currentTimeMillis())).reconcile(ids)
             currentId = bag.current
-            nextId = bag.next(newSeed = System.currentTimeMillis()).current
+            // Reuses the bag's own persisted seed rather than a fresh time-based one: peek()
+            // never persists this simulated reshuffle, so a fresh seed here would make the
+            // "next" preview change on every call that lands on a cycle boundary, even with
+            // nothing about the schedule's actual state having advanced (visible as a widget
+            // thumbnail that flickers between different images on repeated redraws). The real
+            // reshuffle in advance() still uses a genuinely fresh seed when it actually runs.
+            nextId = bag.next(newSeed = bag.seed).current
         } else {
             val sortedIds = images.sortedFor(schedule.sortOrder).map { it.id }
             val currentIndex = SortedCycle.reconcileIndex(cycleState?.sequence?.getOrNull(cycleState.index), sortedIds)
