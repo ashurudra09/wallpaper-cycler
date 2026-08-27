@@ -35,12 +35,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import android.database.Cursor
 import android.provider.DocumentsContract
+import com.ashurudra.wallpapercycler.data.source.LinkedFolderScanner
+import com.ashurudra.wallpapercycler.domain.model.FitMode
+import com.ashurudra.wallpapercycler.domain.model.ScreenTarget
+import com.ashurudra.wallpapercycler.wallpaper.WallpaperApplier
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -70,6 +78,7 @@ fun DiagnosticsScreen(onBack: () -> Unit) {
             DiagnosticCheck("4 — Home-only wallpaper, no lock bleed") { HomeWallpaperCheck(context) },
             DiagnosticCheck("5 — Exact alarm timing") { ExactAlarmTimingCheck(context) },
             DiagnosticCheck("6 — Linked-folder listing (SAF)") { FolderListingCheck(context) },
+            DiagnosticCheck("7 — Real decode + crop + apply") { RealWallpaperApplyCheck(context) },
         )
 
         LazyColumn(
@@ -285,3 +294,44 @@ private fun listImagesInTree(context: Context, treeUri: Uri): String {
 
 private fun currentTimeLabel(): String =
     SimpleDateFormat("HH:mm:ss", Locale.US).format(java.util.Date())
+
+@Composable
+private fun RealWallpaperApplyCheck(context: Context) {
+    var status by remember { mutableStateOf("No folder picked yet.") }
+    val scope = rememberCoroutineScope()
+    val pickFolder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri == null) {
+            status = "Folder pick cancelled."
+            return@rememberLauncherForActivityResult
+        }
+        context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        scope.launch {
+            status = "Scanning folder..."
+            try {
+                val images = withContext(Dispatchers.IO) { LinkedFolderScanner(context, uri).listImages() }
+                if (images.isEmpty()) {
+                    status = "No supported images found in that folder."
+                    return@launch
+                }
+                val chosen = images.random()
+                status = "Applying \"${chosen.displayName}\" (FILL, home only)..."
+                withContext(Dispatchers.IO) {
+                    WallpaperApplier(context).apply(chosen.uri, FitMode.FILL, setOf(ScreenTarget.HOME))
+                }
+                status = "Applied \"${chosen.displayName}\" as home wallpaper — ${images.size} candidate(s) found."
+            } catch (e: Exception) {
+                status = "Failed: ${e.message}"
+            }
+        }
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(status)
+        Button(onClick = { pickFolder.launch(null) }) { Text("Pick folder & apply a random image") }
+        Text(
+            "Runs the real decode -> EXIF orient -> crop -> WallpaperManager pipeline, not a " +
+                "synthetic test bitmap — check the home screen actually shows a real photo, " +
+                "correctly oriented and cropped.",
+            style = MaterialTheme.typography.bodySmall,
+        )
+    }
+}
