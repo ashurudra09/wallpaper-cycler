@@ -1,16 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Ported from docs/app-icon.svg: three overlapping photo cards (the wallpaper set) behind a
+     small refresh badge (the cycling). Coordinates are the SVG's own 512x512 canvas verbatim,
+     so this file is the source of truth to re-derive from if that SVG ever changes. Drop
+     shadows in the SVG have no VectorDrawable equivalent and are omitted. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+
+    <!-- back-left card, rotated -14 degrees about the icon center -->
+    <group android:pivotX="256" android:pivotY="256" android:rotation="-14">
+        <path
+            android:fillColor="#BFE0F2"
+            android:pathData="M170,156 L272,156 A24,24 0 0 1 296,180 L296,352 A24,24 0 0 1 272,376 L170,376 A24,24 0 0 1 146,352 L146,180 A24,24 0 0 1 170,156 Z" />
+    </group>
+
+    <!-- back-right card, rotated +14 degrees about the icon center -->
+    <group android:pivotX="256" android:pivotY="256" android:rotation="14">
+        <path
+            android:fillColor="#F6CFE0"
+            android:pathData="M240,156 L342,156 A24,24 0 0 1 366,180 L366,352 A24,24 0 0 1 342,376 L240,376 A24,24 0 0 1 216,352 L216,180 A24,24 0 0 1 240,156 Z" />
+    </group>
+
+    <!-- center card -->
+    <path android:pathData="M205,146 L307,146 A24,24 0 0 1 331,170 L331,342 A24,24 0 0 1 307,366 L205,366 A24,24 0 0 1 181,342 L181,170 A24,24 0 0 1 205,146 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="181"
+                android:startY="146"
+                android:endX="331"
+                android:endY="366">
+                <item android:offset="0" android:color="#FFF3E6" />
+                <item android:offset="1" android:color="#FCE0CF" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- sun + mountains, clipped to the center card's rounded-rect bounds -->
+    <group>
+        <clip-path android:pathData="M205,146 L307,146 A24,24 0 0 1 331,170 L331,342 A24,24 0 0 1 307,366 L205,366 A24,24 0 0 1 181,342 L181,170 A24,24 0 0 1 205,146 Z" />
+        <path android:fillColor="#FFE9C7" android:pathData="M286,196 m-16,0 a16,16 0 1 0 32,0 a16,16 0 1 0 -32,0" />
+        <path android:fillColor="#C9AEE0" android:pathData="M181,345 L228,288 L258,316 L288,278 L331,328 L331,366 L181,366 Z" />
+        <path
+            android:fillColor="#B79BD6"
+            android:fillAlpha="0.85"
+            android:pathData="M181,355 L212,322 L246,350 L331,352 L331,366 L181,366 Z" />
+    </group>
+
+    <!-- cycling badge -->
+    <path android:fillColor="#6E5A96" android:pathData="M390,390 m-52,0 a52,52 0 1 0 104,0 a52,52 0 1 0 -104,0" />
     <path
-        android:fillColor="#5A6EFF"
-        android:pathData="M26,32 h56 a6,6 0 0 1 6,6 v32 a6,6 0 0 1 -6,6 h-56 a6,6 0 0 1 -6,-6 v-32 a6,6 0 0 1 6,-6 z" />
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M410.7,374.6 L410.7,386 L399.3,386" />
     <path
-        android:fillColor="#FFD65A"
-        android:pathData="M69,44 m-6,0 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0" />
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M368.9,405 L368.9,393.6 L380.3,393.6" />
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M28,68 l14,-16 12,13 8,-8 18,17 v2 h-52 z" />
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M373.669,384.1 a17.1,17.1 0 0 1 28.215,-6.384 L410.7,386" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M405.931,395.5 a17.1,17.1 0 0 1 -28.215,6.384 L368.9,393.6" />
 </vector>

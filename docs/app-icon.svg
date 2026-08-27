@@ -1,0 +1,48 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#D8C4EE"/>
+      <stop offset="1" stop-color="#A9DDEF"/>
+    </linearGradient>
+    <linearGradient id="centerCard" x1="181" y1="146" x2="331" y2="366" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF3E6"/>
+      <stop offset="1" stop-color="#FCE0CF"/>
+    </linearGradient>
+    <clipPath id="centerClip">
+      <rect x="181" y="146" width="150" height="220" rx="24"/>
+    </clipPath>
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#4A3B66" flood-opacity="0.22"/>
+    </filter>
+    <filter id="badgeShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#3B2E57" flood-opacity="0.30"/>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <g transform="rotate(-14 256 256)" filter="url(#softShadow)">
+    <rect x="146" y="156" width="150" height="220" rx="24" fill="#BFE0F2"/>
+  </g>
+
+  <g transform="rotate(14 256 256)" filter="url(#softShadow)">
+    <rect x="216" y="156" width="150" height="220" rx="24" fill="#F6CFE0"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="181" y="146" width="150" height="220" rx="24" fill="url(#centerCard)"/>
+    <g clip-path="url(#centerClip)">
+      <circle cx="286" cy="196" r="16" fill="#FFE9C7"/>
+      <path d="M181 345 L228 288 L258 316 L288 278 L331 328 L331 366 L181 366 Z" fill="#C9AEE0"/>
+      <path d="M181 355 L212 322 L246 350 L331 352 L331 366 L181 366 Z" fill="#B79BD6" opacity="0.85"/>
+    </g>
+  </g>
+
+  <circle cx="390" cy="390" r="52" fill="#6E5A96" filter="url(#badgeShadow)"/>
+  <g transform="translate(367 367) scale(1.9)" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="23 4 23 10 17 10"/>
+    <polyline points="1 20 1 14 7 14"/>
+    <path d="M3.51 9a9 9 0 0114.85-3.36L23 10"/>
+    <path d="M20.49 15a9 9 0 01-14.85 3.36L1 14"/>
+  </g>
+</svg>

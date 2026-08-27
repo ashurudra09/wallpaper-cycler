@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+    <!-- Full-bleed gradient - the adaptive-icon mask applies its own corner rounding, so this
+         intentionally does not replicate docs/app-icon.svg's own rx=112 rounded-rect edge. -->
+    <path android:pathData="M0,0 h512 v512 h-512 z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0"
+                android:startY="0"
+                android:endX="512"
+                android:endY="512">
+                <item android:offset="0" android:color="#D8C4EE" />
+                <item android:offset="1" android:color="#A9DDEF" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>
