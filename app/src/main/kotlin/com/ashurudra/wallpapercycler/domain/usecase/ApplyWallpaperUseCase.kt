@@ -12,6 +12,7 @@ import com.ashurudra.wallpapercycler.data.source.toImageSource
 import com.ashurudra.wallpapercycler.domain.shuffle.ShuffleBag
 import com.ashurudra.wallpapercycler.domain.shuffle.SortedCycle
 import com.ashurudra.wallpapercycler.wallpaper.WallpaperApplier
+import com.ashurudra.wallpapercycler.widget.WidgetRefresher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -46,9 +47,11 @@ class ApplyWallpaperUseCase(private val context: Context) {
     private val database = AppDatabase.getInstance(context)
     private val wallpaperApplier = WallpaperApplier(context)
 
-    suspend fun applyNext(scheduleId: String): ApplyResult = advance(scheduleId, Direction.NEXT)
+    suspend fun applyNext(scheduleId: String): ApplyResult =
+        advance(scheduleId, Direction.NEXT).also { WidgetRefresher.requestUpdateAll(context) }
 
-    suspend fun applyPrevious(scheduleId: String): ApplyResult = advance(scheduleId, Direction.PREVIOUS)
+    suspend fun applyPrevious(scheduleId: String): ApplyResult =
+        advance(scheduleId, Direction.PREVIOUS).also { WidgetRefresher.requestUpdateAll(context) }
 
     /**
      * Pure simulation of one more [applyNext] step, for the schedule card's current/next

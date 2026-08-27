@@ -5,6 +5,7 @@ import com.ashurudra.wallpapercycler.data.db.AppDatabase
 import com.ashurudra.wallpapercycler.data.db.toDomain
 import com.ashurudra.wallpapercycler.domain.model.ImageSourceConfig
 import com.ashurudra.wallpapercycler.scheduler.AlarmScheduler
+import com.ashurudra.wallpapercycler.widget.WidgetRefresher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -37,5 +38,7 @@ class DeleteScheduleUseCase(private val context: Context) {
                 File(context.filesDir, "sets/${source.setId}").deleteRecursively()
             }
         }
+
+        WidgetRefresher.requestUpdateAll(context)
     }
 }
