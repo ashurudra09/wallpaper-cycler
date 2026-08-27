@@ -40,9 +40,16 @@ class MediaImporter(private val context: Context) {
         val failed = mutableListOf<Pair<String, String>>()
 
         for (uri in uris) {
-            val meta = queryMeta(uri)
+            // queryMeta() itself touches the content resolver and can throw (a picker-returned
+            // Uri can be transiently unqueryable on some OEM photo-picker implementations) - it
+            // must be inside the try, or one bad Uri in a multi-photo pick crashes the whole
+            // import instead of being recorded as a single failure.
             var targetFile: File? = null
+            var displayNameForFailure = "image"
             try {
+                val meta = queryMeta(uri)
+                displayNameForFailure = meta.displayName
+
                 val sample = context.contentResolver.openInputStream(uri)
                     ?.use(::readSample)
                     ?: throw IOException("Could not open input stream for $uri")
@@ -63,7 +70,7 @@ class MediaImporter(private val context: Context) {
                 imported += targetName
             } catch (e: Exception) {
                 targetFile?.takeIf { it.exists() }?.delete()
-                failed += meta.displayName to (e.message ?: e.javaClass.simpleName)
+                failed += displayNameForFailure to (e.message ?: e.javaClass.simpleName)
             }
         }
 

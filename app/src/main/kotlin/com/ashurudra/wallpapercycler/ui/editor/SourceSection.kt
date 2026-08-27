@@ -73,24 +73,25 @@ fun SourceSection(
         null -> null
     }
 
-    /** Releases a previously-persisted linked-folder grant that a new source is about to replace. */
-    fun releasePreviousLinkedFolder() {
-        val oldUri = (source as? ImageSourceConfig.LinkedFolder)?.treeUri?.let(Uri::parse) ?: return
-        if (uriPermissionManager.isPersisted(oldUri)) {
-            uriPermissionManager.release(oldUri)
-        }
-    }
-
     fun applyImport(uris: List<Uri>) {
         onSelectGallery()
         importing = true
         scope.launch {
-            val result = onImportPhotos(uris)
-            importing = false
-            onMessage(
-                "Imported ${result.imported.size}, skipped ${result.duplicates.size} duplicate(s), " +
-                    "${result.failed.size} failed.",
-            )
+            // Nothing here should ever be able to crash the app - a picked photo failing to
+            // import is a per-photo entry in ImportResult.failed, but anything that somehow
+            // escapes that (e.g. a transient content-resolver hiccup) must still surface as a
+            // message, not an uncaught exception in this coroutine.
+            try {
+                val result = onImportPhotos(uris)
+                onMessage(
+                    "Imported ${result.imported.size}, skipped ${result.duplicates.size} duplicate(s), " +
+                        "${result.failed.size} failed.",
+                )
+            } catch (e: Exception) {
+                onMessage("Import failed: ${e.message ?: e.javaClass.simpleName}")
+            } finally {
+                importing = false
+            }
         }
     }
 
@@ -99,7 +100,11 @@ fun SourceSection(
         if (currentKind == SourceKind.GALLERY) {
             pendingSwitch = PendingSwitch.ToLinkedFolder(uri)
         } else {
-            releasePreviousLinkedFolder()
+            // Deliberately does NOT release any previously-linked folder's SAF grant here - this
+            // runs on every pick, before Save is ever pressed, and releasing eagerly would orphan
+            // the still-persisted Schedule row (which keeps the OLD treeUri) if the user then
+            // backs out without saving. A held-but-unused grant is harmless; a released grant a
+            // saved schedule still points at is a permanent "Permission Denial" on every read.
             uriPermissionManager.persist(uri)
             onLinkFolder(uri.toString())
         }
@@ -176,7 +181,8 @@ fun SourceSection(
                             scope.launch { onDiscardManagedSet() }
                         }
                         is PendingSwitch.ToGallery -> {
-                            releasePreviousLinkedFolder()
+                            // See the comment on pickFolder's persist() call - the old linked
+                            // folder's SAF grant is deliberately left alone here too.
                             applyImport(switch.uris)
                         }
                     }
