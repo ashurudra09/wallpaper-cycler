@@ -20,4 +20,7 @@ interface CycleDao {
 
     @Query("DELETE FROM cycle_state WHERE scheduleId = :scheduleId")
     suspend fun deleteByScheduleId(scheduleId: String)
+
+    @Query("DELETE FROM cycle_state")
+    suspend fun deleteAll()
 }

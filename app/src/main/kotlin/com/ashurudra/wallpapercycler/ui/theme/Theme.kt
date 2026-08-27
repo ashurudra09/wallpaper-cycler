@@ -48,8 +48,9 @@ private val DarkColors = darkColorScheme(
 )
 
 /**
- * [darkTheme] and [accentOverride] default to system/none for now; Phase 7 wires them
- * to the persisted Light/Dark/System setting and the optional custom-accent override.
+ * [darkTheme] and [accentOverride] are driven by the persisted Light/Dark/System setting and
+ * the optional custom-accent override (see SettingsRepository/SettingsScreen) - the defaults
+ * here only matter for previews and any caller that doesn't have that state yet.
  */
 @Composable
 fun WallpaperCyclerTheme(

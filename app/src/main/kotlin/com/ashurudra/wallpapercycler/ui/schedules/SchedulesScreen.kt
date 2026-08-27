@@ -10,11 +10,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -41,7 +43,11 @@ import com.ashurudra.wallpapercycler.domain.model.Schedule
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SchedulesScreen(onOpenDiagnostics: () -> Unit, onOpenEditor: (scheduleId: String?) -> Unit) {
+fun SchedulesScreen(
+    onOpenDiagnostics: () -> Unit,
+    onOpenSettings: () -> Unit,
+    onOpenEditor: (scheduleId: String?) -> Unit,
+) {
     val context = LocalContext.current.applicationContext
     val viewModel: SchedulesViewModel = viewModel(factory = SchedulesViewModel.factory(context))
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -64,6 +70,9 @@ fun SchedulesScreen(onOpenDiagnostics: () -> Unit, onOpenEditor: (scheduleId: St
                         TextButton(onClick = onOpenDiagnostics) {
                             Text("Diagnostics")
                         }
+                    }
+                    IconButton(onClick = onOpenSettings) {
+                        Icon(Icons.Filled.Settings, contentDescription = "Settings")
                     }
                 },
             )

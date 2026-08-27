@@ -4,12 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavType
@@ -17,10 +20,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.ashurudra.wallpapercycler.domain.model.ThemeMode
 import com.ashurudra.wallpapercycler.ui.diagnostics.DiagnosticsScreen
 import com.ashurudra.wallpapercycler.ui.editor.ScheduleEditorScreen
 import com.ashurudra.wallpapercycler.ui.onboarding.PermissionsScreen
 import com.ashurudra.wallpapercycler.ui.schedules.SchedulesScreen
+import com.ashurudra.wallpapercycler.ui.settings.SettingsScreen
 import com.ashurudra.wallpapercycler.ui.theme.WallpaperCyclerTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -28,6 +33,7 @@ import kotlinx.coroutines.launch
 private const val ROUTE_ONBOARDING = "onboarding"
 private const val ROUTE_SCHEDULES = "schedules"
 private const val ROUTE_DIAGNOSTICS = "diagnostics"
+private const val ROUTE_SETTINGS = "settings"
 private const val ROUTE_EDITOR_NEW = "editor_new"
 private const val ROUTE_EDITOR_EDIT = "editor_edit/{scheduleId}"
 private const val ARG_SCHEDULE_ID = "scheduleId"
@@ -57,7 +63,19 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            WallpaperCyclerTheme {
+            val themeMode by container.settingsRepository.themeMode.collectAsState(initial = ThemeMode.SYSTEM)
+            val customAccentArgb by container.settingsRepository.customAccent.collectAsState(initial = null)
+            val systemInDarkTheme = isSystemInDarkTheme()
+            val darkTheme = when (themeMode) {
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+                ThemeMode.SYSTEM -> systemInDarkTheme
+            }
+
+            WallpaperCyclerTheme(
+                darkTheme = darkTheme,
+                accentOverride = customAccentArgb?.let { Color(it) },
+            ) {
                 val onboardingNeeded = showOnboarding
                 if (onboardingNeeded == null) {
                     // Splash screen is still covering the activity while startReady is false.
@@ -84,6 +102,7 @@ class MainActivity : ComponentActivity() {
                         composable(ROUTE_SCHEDULES) {
                             SchedulesScreen(
                                 onOpenDiagnostics = { navController.navigate(ROUTE_DIAGNOSTICS) },
+                                onOpenSettings = { navController.navigate(ROUTE_SETTINGS) },
                                 onOpenEditor = { scheduleId ->
                                     if (scheduleId == null) {
                                         navController.navigate(ROUTE_EDITOR_NEW)
@@ -95,6 +114,9 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(ROUTE_DIAGNOSTICS) {
                             DiagnosticsScreen(onBack = { navController.popBackStack() })
+                        }
+                        composable(ROUTE_SETTINGS) {
+                            SettingsScreen(onBack = { navController.popBackStack() })
                         }
                         composable(ROUTE_EDITOR_NEW) {
                             ScheduleEditorScreen(
