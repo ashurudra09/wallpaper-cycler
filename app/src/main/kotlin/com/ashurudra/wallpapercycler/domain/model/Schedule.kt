@@ -1,12 +1,13 @@
 package com.ashurudra.wallpapercycler.domain.model
 
-/**
- * Phase 2 scope: only the fields the target-conflict logic (TargetArbiter) needs.
- * Phase 3 extends this with the trigger, image source, and shuffle/sort settings once
- * Room entities exist.
- */
 data class Schedule(
     val id: String,
     val enabled: Boolean,
     val targets: Set<ScreenTarget>,
+    val label: String = "",
+    val trigger: Trigger = Trigger.Interval(everyMillis = 0L),
+    val source: ImageSourceConfig = ImageSourceConfig.ManagedSet(setId = ""),
+    val shuffleEnabled: Boolean = true,
+    val sortOrder: SortOrder = SortOrder.NAME_ASC,
+    val fitMode: FitMode = FitMode.FILL,
 )
